@@ -47,8 +47,8 @@ func NewDevelopmentConfig() zap.Config {
 	return zap.Config{
 		Level:            zap.NewAtomicLevelAt(zap.DebugLevel),
 		Development:      true,
-		Encoding:         "console",
-		EncoderConfig:    NewDevelopmentEncoderConfig(),
+		Encoding:         "json",
+		EncoderConfig:    NewProductionEncoderConfig(),
 		OutputPaths:      []string{"stderr"},
 		ErrorOutputPaths: []string{"stderr"},
 	}
