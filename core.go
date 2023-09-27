@@ -156,6 +156,25 @@ func (c *core) Write(ent zapcore.Entry, fields []zapcore.Field) error {
 		}
 	}
 
+	// temporary hack to get the traceId and SpanId from the context directly and move them to the root object.
+	for _, f := range fields {
+		if f.Key != "logging.googleapis.com/labels" {
+			continue
+		}
+		if labels, ok := f.Interface.(*labels); ok {
+			spanKey := "logging.googleapis.com/spanId"
+			traceKey := "logging.googleapis.com/trace"
+			if traceId, ok := labels.store[traceKey]; ok {
+				fields = append(fields, zap.String(traceKey, traceId))
+				delete(labels.store, traceKey)
+			}
+			if spanId, ok := labels.store[spanKey]; ok {
+				fields = append(fields, zap.String(spanKey, spanId))
+				delete(labels.store, spanKey)
+			}
+		}
+	}
+
 	c.tempLabels.reset()
 
 	return c.Core.Write(ent, fields)
